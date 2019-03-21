@@ -8,8 +8,8 @@ app = Flask(__name__)
 
 # create database
 USERS_TABLE = os.environ['USERS_TABLE']
-client = boto3.client('dynamodb', region_name='eu-west-2', endpoint_url="http://localhost:8000")
-#client = boto3.client('dynamodb')
+#client = boto3.client('dynamodb', region_name='eu-west-2', endpoint_url="http://localhost:8000")
+client = boto3.client('dynamodb')
 
 # use decorators to link the function to a url
 @app.route('/')
@@ -48,6 +48,7 @@ def create_user():
                 'password': {'S': password }
             }
         )
+        return redirect(url_for('home'))
     return render_template('registration.html', error=error)    
 
 # start the server with the 'run()' method
