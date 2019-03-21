@@ -1,8 +1,15 @@
+import os
+import boto3
 # import the Flask class from the flask module
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, jsonify
 
 # create the application object
 app = Flask(__name__)
+
+# create database
+USERS_TABLE = os.environ['USERS_TABLE']
+client = boto3.client('dynamodb', region_name='eu-west-2', endpoint_url="http://localhost:8000")
+#client = boto3.client('dynamodb')
 
 # use decorators to link the function to a url
 @app.route('/')
@@ -23,6 +30,25 @@ def login():
         else:
             return redirect(url_for('home'))
     return render_template('login.html', error=error)
+
+# Route for registering users
+@app.route("/registration", methods=['GET', "POST"])
+def create_user():
+    error = None
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if not username or not password:
+            return jsonify({'error': 'Please provider username and password'}), 400
+
+        resp = client.put_item(
+            TableName=USERS_TABLE,
+            Item={
+                'username': {'S': username },
+                'password': {'S': password }
+            }
+        )
+    return render_template('registration.html', error=error)    
 
 # start the server with the 'run()' method
 if __name__ == '__main__':
