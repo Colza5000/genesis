@@ -8,8 +8,8 @@ app = Flask(__name__)
 
 # create database
 USERS_TABLE = os.environ['USERS_TABLE']
-#client = boto3.client('dynamodb', region_name='eu-west-2', endpoint_url="http://localhost:8000")
-client = boto3.client('dynamodb')
+client = boto3.client('dynamodb', region_name='eu-west-2', endpoint_url="http://localhost:8000") # Use this for local testing with docker dynamodb
+#client = boto3.client('dynamodb')
 
 # use decorators to link the function to a url
 @app.route('/')
@@ -19,6 +19,11 @@ def home():
 @app.route('/welcome')
 def welcome():
     return render_template('welcome.html')  # render a template
+
+# Successful user registration
+@app.route('/success')
+def success():
+    return "User has been successfully registered"  # return a string
 
 # Route for handling the login page logic
 @app.route('/login', methods=['GET', 'POST'])
@@ -48,7 +53,7 @@ def create_user():
                 'password': {'S': password }
             }
         )
-        return redirect(url_for('home'))
+        return redirect(url_for('success'))
     return render_template('registration.html', error=error)    
 
 # start the server with the 'run()' method
